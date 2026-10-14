@@ -7,10 +7,19 @@
 :root {
 	--slidev-theme-primary: #7aa2ff;
 
-	/* Match the paragraph rhythm (`my-4`) so code blocks keep the same
-	 * breathing room when they sit next to each other or next to a
-	 * zero-margin element such as a blockquote. */
-	--slidev-code-margin: 1rem 0;
+	/* Vertical rhythm — a single-direction flow. Every block carries the gap
+	 * *above* it (`--flow`), and only when it actually follows a sibling, so
+	 * the space between any two blocks is always the same and the first/last
+	 * block of a container is flush. `-tight` binds a heading to its content;
+	 * `-loose` sets a section heading apart from the block above it. */
+	--flow: 1rem;
+	--flow-tight: 0.5rem;
+	--flow-loose: 2.5rem;
+
+	/* Slidev applies `margin: var(--slidev-code-margin) !important` to code
+	 * blocks, so the flow rules below drive this token instead of fighting
+	 * the `!important`. */
+	--slidev-code-margin: 0;
 
 	/* One corner radius shared by every "surface" — code blocks, tables,
 	 * boxes, screenshots and callouts — so they all read as one family.
@@ -27,6 +36,7 @@
 	--c-border: #e4e4e8;
 	--c-border-strong: #c9c9d0;
 	--c-on-primary: #141418;
+	--c-danger: #e5484d;
 	--c-shadow:
 		0 1px 2px rgba(24, 24, 27, 0.04),
 		0 8px 24px rgba(24, 24, 27, 0.07);
@@ -44,6 +54,7 @@ html.dark {
 	--c-border: #2a2a30;
 	--c-border-strong: #3a3a42;
 	--c-on-primary: #141418;
+	--c-danger: #ff6369;
 	--c-shadow:
 		0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.4);
 }
@@ -87,6 +98,89 @@ html #page-root .slidev-slide-content {
 
 .slidev-layout li::marker {
 	color: var(--slidev-theme-primary);
+}
+
+/* ---------------------------------------------------------------------------
+ * Vertical rhythm — one-direction flow.
+ *
+ * Slidev's base styles give paragraphs a symmetric `my-4` and let headings
+ * carry one-sided margins, so the real gap between two blocks depends on
+ * *which* block happens to sit above the other. This section replaces that
+ * with a single rule: every block carries the gap above it, and only when it
+ * actually follows a sibling (`:not(:first-child)`). Nothing carries a bottom
+ * margin, therefore:
+ *
+ *   - adjacent blocks are always exactly `--flow` apart;
+ *   - the first child is flush with the top of its container and the last
+ *     with the bottom, so grid/flex/centred layouts — and every `two-cols*`
+ *     column — align without per-layout patches;
+ *   - there are no margins left to collapse, so normal flow, grid items and
+ *     flex items all render identically.
+ *
+ * The selectors list block elements explicitly instead of using `* + *`, so
+ * custom components (`<ClicksSlider class="mt-2">`, …) and layout scaffolding
+ * (`.col-*`, `.my-auto`) are left alone and utility margins keep working.
+ * ------------------------------------------------------------------------- */
+
+/* Drop the symmetric rhythm inherited from the base styles. */
+.slidev-layout :is(
+	p, ul, ol, dl, blockquote, pre, hr, figure, table,
+	h1, h2, h3, h4, h5, h6
+) {
+	margin-block: 0;
+}
+
+.slidev-layout :is(.box, .markdown-alert, .shot, .list-tracker) {
+	margin-block: 0;
+}
+
+/* One gap, above, for every block that is not the first child. */
+.slidev-layout :is(
+	p, ul, ol, dl, blockquote, pre, hr, figure, table,
+	h1, h2, h3, h4, h5, h6
+):not(:first-child) {
+	margin-top: var(--flow);
+}
+
+.slidev-layout :is(.box, .markdown-alert, .shot, .list-tracker):not(:first-child) {
+	margin-top: var(--flow);
+}
+
+/* A heading binds to the content it introduces. */
+.slidev-layout :is(h1, h2, h3, h4, h5, h6) + :is(
+	p, ul, ol, dl, blockquote, pre, hr, figure, table,
+	.box, .markdown-alert, .shot, .list-tracker
+):not(:first-child) {
+	margin-top: var(--flow-tight);
+}
+
+/* A section heading keeps extra room above it. */
+.slidev-layout :is(h2):not(:first-child) {
+	margin-top: var(--flow-loose);
+}
+
+/* Inside a surface the rhythm is tighter and self-contained. */
+.slidev-layout :is(.box, .markdown-alert, blockquote) :is(
+	p, ul, ol, dl, h1, h2, h3, h4, h5, h6
+):not(:first-child) {
+	margin-top: var(--flow-tight);
+}
+
+/* Code blocks read their own margin token (applied by Slidev with
+ * `!important`); point it at `--flow` so they join the rhythm above. */
+.slidev-layout .slidev-code-wrapper:not(:first-child) {
+	--slidev-code-margin: var(--flow) 0 0;
+}
+
+/* …and bind a code block to a heading right above it, like any other block. */
+.slidev-layout :is(h1, h2, h3, h4, h5, h6) + .slidev-code-wrapper:not(:first-child) {
+	--slidev-code-margin: var(--flow-tight) 0 0;
+}
+
+/* The code wrapper spaces itself; never space its internals (the optional
+ * title bar would otherwise push the `<pre>` down). */
+.slidev-layout .slidev-code-wrapper :is(pre, code) {
+	margin-block: 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -145,9 +239,6 @@ html body,
  * Tables — minimal grid: horizontal rules only, muted mono header.
  * ------------------------------------------------------------------------- */
 .slidev-layout table {
-	/* Match the paragraph/code/callout rhythm so a table keeps the same
-	 * breathing room when it wraps next to other blocks. */
-	margin: 1rem 0;
 	width: 100%;
 	border: 1px solid var(--c-border);
 	border-radius: var(--c-radius);
@@ -216,7 +307,7 @@ html body,
  * ------------------------------------------------------------------------- */
 .slidev-layout .shot {
 	display: block;
-	margin: 1.5rem auto;
+	margin-inline: auto;
 	max-width: 100%;
 	border: 1px solid var(--c-border-strong);
 	border-radius: var(--c-radius);
@@ -244,9 +335,6 @@ html body,
 .slidev-layout blockquote {
 	--alert-accent: var(--slidev-theme-primary);
 	position: relative;
-	/* Match the paragraph/code rhythm (1rem) so a callout keeps breathing room
-	 * when it sits right under a table, a list or another block. */
-	margin: 1rem 0;
 	padding: 1rem 1.25rem;
 	border: 1px solid var(--c-border);
 	border-left: 0;
@@ -283,47 +371,49 @@ html body,
 }
 
 /* ---------------------------------------------------------------------------
- * Badges — small pill labels. Add `badge-accent` for the primary tint,
- * `badge-round` for the circular "vs" style.
+ * Component tokens — the `slidev-addons-russell` components ship their own
+ * default styles and read these variables for appearance. Point them at the
+ * theme's palette here; anything not set keeps the component default, so the
+ * components work with any theme and adopt this one when present.
  * ------------------------------------------------------------------------- */
-.slidev-layout .badge {
+:root {
+	--badge-bg: var(--c-surface-muted);
+	--badge-color: var(--c-text-muted);
+	--badge-border: var(--c-border);
+	--badge-font: var(--slidev-code-font-family);
+	--badge-accent-color: var(--slidev-theme-primary);
+
+	--counter-border: var(--c-border);
+	--counter-radius: var(--c-radius);
+	--counter-font: var(--slidev-code-font-family);
+	--counter-hover-bg: var(--c-surface-muted);
+
+	--clicks-slider-accent: var(--slidev-theme-primary);
+	--clicks-slider-track: var(--c-border-strong);
+	--clicks-slider-font: var(--slidev-code-font-family);
+
+	--tracker-border: var(--c-border);
+	--tracker-cell-bg: var(--c-surface);
+	--tracker-cell-fg: var(--c-text-strong);
+	--tracker-index-color: var(--c-text-muted);
+	--tracker-pointer-color: var(--slidev-theme-primary);
+	--tracker-active-bg: color-mix(in srgb, var(--slidev-theme-primary) 14%, transparent);
+	--tracker-radius: var(--c-radius);
+	--tracker-font: var(--slidev-code-font-family);
+	--tracker-out-of-bounds: var(--c-danger);
+}
+
+/* ---------------------------------------------------------------------------
+ * Slide-type tags — the `Testo` / `Soluzione` / `Traccia` pills written inline
+ * in the slides as a primary-filled <span>. Keep the padding, but shrink the
+ * label and align it so its vertical padding does not stretch the text line.
+ * ------------------------------------------------------------------------- */
+.slidev-layout h1 + p > span.bg-primary {
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	gap: 0.4em;
-	padding: 0.15em 0.65em;
-	border: 1px solid var(--c-border);
-	border-radius: 999px;
-	background: var(--c-surface-muted);
-	color: var(--c-text-muted);
-	font-family: var(--slidev-code-font-family);
-	font-size: 0.7em;
-	font-weight: 500;
-	line-height: 1.7;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
 	vertical-align: middle;
-}
-
-.slidev-layout .badge-accent {
-	border-color: color-mix(
-		in srgb,
-		var(--slidev-theme-primary) 45%,
-		transparent
-	);
-	background: color-mix(
-		in srgb,
-		var(--slidev-theme-primary) 14%,
-		transparent
-	);
-	color: var(--slidev-theme-primary);
-}
-
-.slidev-layout .badge-round {
-	aspect-ratio: 1;
-	min-width: 3em;
-	padding: 0.5em;
-	font-size: 0.8em;
+	font-size: 0.7em;
+	line-height: 1.6;
 }
 
 /* ---------------------------------------------------------------------------
@@ -350,6 +440,15 @@ html body,
 
 .two-cols-header {
 	column-gap: 1.5em;
+}
+
+/* The two columns sit below the header row, so treat them as blocks: they
+ * get the same gap the flow gives to any other block that follows another.
+ * (`.col-*` are layout scaffolding, not markdown blocks, so the flow rules
+ * above deliberately do not reach them.) */
+.two-cols-header .col-left,
+.two-cols-header .col-right {
+	margin-top: var(--flow);
 }
 
 /* Pushes slidev tools bar to the upper left of the screen */
