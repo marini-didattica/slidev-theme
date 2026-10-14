@@ -202,10 +202,30 @@ html #page-root .slidev-slide-content {
 
 /* ---------------------------------------------------------------------------
  * Code blocks — same flat border as <kbd>, plus a soft box shadow.
+ *
+ * The frame is drawn on the *wrapper* (`.slidev-code-wrapper`), not on the
+ * inner `<pre>`. For a `{maxHeight}` block Slidev turns the wrapper into the
+ * scroll container, so a border on the scrolling `<pre>` would scroll away with
+ * the code; on the wrapper it stays put. The inner `<pre>` does the scrolling
+ * itself, which also keeps the copy button — an absolute child of the
+ * (non-scrolling) wrapper — pinned to the top-right corner.
  * ------------------------------------------------------------------------- */
-.slidev-layout .slidev-code {
+.slidev-layout .slidev-code-wrapper {
 	border: 1px solid var(--c-border-strong);
+	border-radius: var(--c-radius);
 	box-shadow: var(--c-shadow);
+	/* Clip the scrolling <pre> to the rounded frame; `!important` beats the
+	 * inline `overflow-y: scroll` Slidev puts on the wrapper. */
+	overflow: hidden !important;
+}
+
+/* The <pre> inherits the wrapper's `maxHeight` (when set) and scrolls, so the
+ * frame above and the copy button never move. */
+.slidev-layout .slidev-code {
+	border: 0;
+	box-shadow: none;
+	max-height: inherit;
+	overflow-y: auto;
 }
 
 /* Inline code must always keep the case exactly as written, even when it sits
