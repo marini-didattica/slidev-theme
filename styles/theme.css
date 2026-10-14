@@ -217,15 +217,47 @@ html #page-root .slidev-slide-content {
 	/* Clip the scrolling <pre> to the rounded frame; `!important` beats the
 	 * inline `overflow-y: scroll` Slidev puts on the wrapper. */
 	overflow: hidden !important;
+	/* Column layout so an optional title bar stacks above the <pre> and the
+	 * <pre> can shrink to the wrapper instead of growing past it. */
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 }
 
-/* The <pre> inherits the wrapper's `maxHeight` (when set) and scrolls, so the
- * frame above and the copy button never move. */
+/* The <pre> fills the wrapper and scrolls, so the frame above and the copy
+ * button never move. `flex: 1 1 auto` + `min-height: 0` lets it shrink below
+ * its content height: the wrapper decides how much room is actually left. */
 .slidev-layout .slidev-code {
 	border: 0;
 	box-shadow: none;
-	max-height: inherit;
 	overflow-y: auto;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Scrollable code inside a fixed-size slide.
+ *
+ * A slide has a fixed logical size (16:9), but `{maxHeight}` values resolve
+ * against the *viewport* (`56vh`, `40vh`, …), so on a tall screen they can ask
+ * for more room than the slide has and the block spills past its edge. Without
+ * a `{maxHeight}` a long block has no cap at all. Either way the content is
+ * drawn past the container instead of scrolling.
+ *
+ * Fix: every container a code block can live in becomes a flex column. Headings,
+ * paragraphs, tables and callouts keep their automatic minimum size, so they
+ * never shrink; only the code wrapper opts into shrinking (`min-height: 0`) and
+ * therefore absorbs the overflow and scrolls internally. Short blocks are left
+ * alone — with the default `flex: 0 1 auto` they stay at their content height.
+ * ------------------------------------------------------------------------- */
+.slidev-layout.default,
+.two-cols-header .col-left,
+.two-cols-header .col-right,
+.two-cols .col-left,
+.two-cols .col-right {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 }
 
 /* Inline code must always keep the case exactly as written, even when it sits
