@@ -1,4 +1,4 @@
-# slidev-theme-russell
+# marini-slidev-theme
 
 A [Slidev](https://sli.dev) theme for the decks in the
 [`russell-informatica`](https://github.com/russell-informatica) organization:
@@ -16,9 +16,9 @@ It packages everything visual that used to live in the deck repos:
 
 ```md
 ---
-theme: slidev-theme-russell
+theme: marini-slidev-theme
 addons:
-  - slidev-addons-russell
+  - marini-slidev-addons
 ---
 ```
 
@@ -28,7 +28,7 @@ deck repos, as an npm git dependency:
 ```json
 {
   "dependencies": {
-    "slidev-theme-russell": "github:russell-informatica/slidev-theme"
+    "marini-slidev-theme": "github:russell-informatica/slidev-theme"
   }
 }
 ```

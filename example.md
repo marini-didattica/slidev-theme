@@ -4,7 +4,7 @@ title: Theme preview
 author: Marini Mattia
 ---
 
-# slided-theme-russell
+# marini-slidev-theme
 
 Flat, Zed-inspired theme preview.
 
