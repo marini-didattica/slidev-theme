@@ -77,11 +77,6 @@ html #page-root .slidev-slide-content {
 	color: var(--c-text);
 }
 
-/* Reserve room at the top for the persistent topic kicker (global-top.vue). */
-.slidev-layout {
-	padding-top: 4.5rem;
-}
-
 .slidev-layout :is(h1, h2, h3, h4, h5, h6) {
 	color: var(--c-text-strong);
 }
