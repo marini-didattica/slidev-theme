@@ -326,13 +326,20 @@ html body,
 }
 
 /* Opt-in compact tables — add `class: table-sm` to the slide frontmatter
- * when a table would otherwise overflow the slide. */
-.slidev-layout.table-sm table {
+ * when a table would otherwise overflow the slide. Slidev applies that class to
+ * the layout slot wrappers (`.col-left`, `.col-right`, …) rather than to
+ * `.slidev-layout` itself, so match the class wherever it lands; `table.table-sm`
+ * also covers applying it directly on a table. */
+.slidev-layout.table-sm table,
+.slidev-layout .table-sm table,
+.slidev-layout table.table-sm {
 	font-size: 0.88em;
 }
 
 .slidev-layout.table-sm td,
-.slidev-layout.table-sm th {
+.slidev-layout.table-sm th,
+.slidev-layout .table-sm td,
+.slidev-layout .table-sm th {
 	padding: 0.24rem 0.8rem;
 }
 
