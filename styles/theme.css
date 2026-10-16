@@ -452,6 +452,7 @@ html body,
 	--tracker-index-color: var(--c-text-muted);
 	--tracker-pointer-color: var(--slidev-theme-primary);
 	--tracker-active-bg: color-mix(in srgb, var(--slidev-theme-primary) 14%, transparent);
+	--tracker-changed-bg: color-mix(in srgb, var(--slidev-theme-primary) 40%, transparent);
 	--tracker-radius: var(--c-radius);
 	--tracker-font: var(--slidev-code-font-family);
 	--tracker-out-of-bounds: var(--c-danger);
